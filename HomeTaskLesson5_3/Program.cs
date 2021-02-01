@@ -23,6 +23,12 @@ namespace HomeTaskLesson5_3
             WriteNumsToBinaryFile(filePath, byteArrNums);
         }
 
+        /// <summary>
+        /// Проверка на корректность введенных данных. В случае успеха получение списка занчений в виде массива типа Byte
+        /// </summary>
+        /// <param name="userVal">Пользовательская последовательность</param>
+        /// <param name="byteArrNums">Выходной байт массив</param>
+        /// <returns></returns>
         static bool CheckUsrValForCorrect(string userVal, out byte[] byteArrNums)
         {
             string[] arrNums = userVal?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -42,7 +48,11 @@ namespace HomeTaskLesson5_3
 
             return true;
         }
-
+        /// <summary>
+        /// Запись в текстовый документ байт массив
+        /// </summary>
+        /// <param name="filePath">Путь к файлу, в который произойдет запись</param>
+        /// <param name="userVal">Байт массив для записи</param>
         static void WriteNumsToBinaryFile(string filePath, byte[] userVal)
         {
             File.WriteAllBytes(filePath, userVal);

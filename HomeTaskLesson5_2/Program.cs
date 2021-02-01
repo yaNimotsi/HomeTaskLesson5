@@ -10,12 +10,12 @@ namespace HomeTaskLesson5_2
             string dNow = " " + DateTime.Now.ToString();
             string filePath = @"E:\GeekBrains\UserText.txt";
 
-            WriteToFileCurrentDate(dNow);
+            WriteToFileCurrentDate(filePath, dNow);
         }
 
-        static void WriteToFileCurrentDate(string date)
+        static void WriteToFileCurrentDate(string filePath ,string date)
         {
-            File.AppendAllText(@"E:\GeekBrains\UserText.txt", date, System.Text.Encoding.UTF8);
+            File.AppendAllText(filePath, date, System.Text.Encoding.UTF8);
         }
     }
 }

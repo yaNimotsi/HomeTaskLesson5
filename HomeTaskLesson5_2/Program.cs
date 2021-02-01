@@ -8,7 +8,7 @@ namespace HomeTaskLesson5_2
         static void Main(string[] args)
         {
             string dNow = " " + DateTime.Now.ToString();
-            string filePath = @"E:\GeekBrains\UserText.txt";
+            string filePath = @"E:\GeekBrains\startup.txt";
 
             WriteToFileCurrentDate(filePath, dNow);
         }

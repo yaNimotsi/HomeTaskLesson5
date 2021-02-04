@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.IO;
-
+using System.Collections.Generic;
 
 namespace HomeTaskLesson5_5
 {
@@ -12,7 +12,7 @@ namespace HomeTaskLesson5_5
         {
             while (StartMenu())
             {
-
+                //Console.Clear();
             }
         }
 
@@ -42,6 +42,8 @@ namespace HomeTaskLesson5_5
                     AddTask();
                     return true;
                 case 2:
+                    List<ToDo> taskList = new List<ToDo>();
+                    PrinTasksFormJson(out taskList);
                     return true;
                 case 3:
                     return true;
@@ -65,34 +67,65 @@ namespace HomeTaskLesson5_5
         }
 
         /// <summary>
-        /// Возврат значения введенного пользователем для добавления ззадачи
-        /// </summary>
-        /// <returns></returns>
-        static string UserValToAddTask()
-        {
-            return "";
-        }
-
-        /// <summary>
         /// Добавление новых задач
         /// </summary>
         static void AddTask()
         {
-            PrinTasksFormJson();
+            List<ToDo> taskList;
+            
+            PrinTasksFormJson(out taskList);
 
-            Console.WriteLine("Введите текст нового задания");
+            string userAnswer = "";
+
+            while (true)
+            {
+                Console.WriteLine("Введите текст нового задания. Если хотите выйти в меню выше, введите \"Выход\"");
+                userAnswer = Console.ReadLine().ToLower();
+                
+                if (userAnswer == "выход") break;
+
+                ToDo newTask = new ToDo(userAnswer, false);
+                taskList.Add(newTask);
+            }
+
+            AddTasksToJson(taskList);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userVal"></param>
+        /// <returns></returns>
+        static void AddTasksToJson(List<ToDo> taskList)
+        {
+            string json = JsonSerializer.Serialize<List<ToDo>>(taskList);
+            
+            using ()
+            {
+
+            }
+            File.WriteAllText("tasks.json", json, Encoding.ASCII);
+
         }
 
         /// <summary>
         /// Печать текущих задач в консоль
         /// </summary>
-        static void PrinTasksFormJson()
+        static void PrinTasksFormJson(out List<ToDo> startTaskList)
         {
-            if (!IsTasksClear()) return;
-            ToDo[] json = JsonSerializer.Deserialize<ToDo[]>("tasks.json");
+            startTaskList = new List<ToDo>();
 
-            for (int i = 0; i < json.Length; i++)
+            if (!IsTasksClear())
             {
+                Console.WriteLine("Пока задач нет!");
+                return;
+            }
+            List<ToDo> json = JsonSerializer.Deserialize<List<ToDo>>("tasks.json");
+
+            for (int i = 0; i < json.Count; i++)
+            {
+                startTaskList.Add(json[i]);
+
                 if (json[i].IsDone)
                 {
                     Console.WriteLine($"{i + 1} \"+\" {json[i].Title}");

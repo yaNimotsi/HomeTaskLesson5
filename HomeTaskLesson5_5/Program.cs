@@ -10,7 +10,8 @@ namespace HomeTaskLesson5_5
     {
         static void Main(string[] args)
         {
-            while (StartMenu())
+            List<ToDo> taskList = new List<ToDo>();
+            while (StartMenu(ref taskList))
             {
                 //Console.Clear();
             }
@@ -20,7 +21,7 @@ namespace HomeTaskLesson5_5
         /// Стартовое меню приложения
         /// </summary>
         /// <returns></returns>
-        static bool StartMenu()
+        static bool StartMenu(ref List<ToDo> taskList)
         {
             //1 добавить задачу(и)
             //2 загрузить текущие задачи
@@ -32,24 +33,21 @@ namespace HomeTaskLesson5_5
                 "\n 1 Добавить задачу" +
                 "\n 2 Загрузить текущие задачи" +
                 "\n 3 Отметить задачу, как выполненную" +
-                "\n 4 Обновить массив задач" +
-                "\n 5 Закрыть приложение");
+                "\n 0 Закрыть приложение");
             int userVal = UserVal();
 
             switch (userVal)
             {
                 case 1:
-                    AddTask();
+                    AddTask(ref taskList);
                     return true;
                 case 2:
-                    List<ToDo> taskList = new List<ToDo>();
-                    PrinTasksFormJson(out taskList);
+                    PrinTasksFormJson(ref taskList);
                     return true;
                 case 3:
+                    TaskComplate(ref taskList);
                     return true;
-                case 4:
-                    return true;
-                case 5:
+                case 0:
                     return false;
                 default:
                     Console.WriteLine("\nВведено недопустимое значение. Следуйте инструкциям\n");
@@ -69,11 +67,11 @@ namespace HomeTaskLesson5_5
         /// <summary>
         /// Добавление новых задач
         /// </summary>
-        static void AddTask()
+        static void AddTask(ref List<ToDo> taskList)
         {
-            List<ToDo> taskList;
-            
-            PrinTasksFormJson(out taskList);
+            Console.Clear();
+
+            PrinTasksFormJson(ref taskList);
 
             string userAnswer = "";
 
@@ -98,29 +96,23 @@ namespace HomeTaskLesson5_5
         /// <returns></returns>
         static void AddTasksToJson(List<ToDo> taskList)
         {
-            string json = JsonSerializer.Serialize<List<ToDo>>(taskList);
-            
-            using ()
-            {
+            //string json = JsonSerializer.Serialize<List<ToDo>>(taskList);
+            string json = JsonSerializer.Serialize(taskList.ToArray());
 
-            }
-            File.WriteAllText("tasks.json", json, Encoding.ASCII);
+            File.WriteAllText(@"E:\GeekBrains\tasks.json", json, Encoding.ASCII);
 
         }
 
         /// <summary>
         /// Печать текущих задач в консоль
         /// </summary>
-        static void PrinTasksFormJson(out List<ToDo> startTaskList)
+        static void PrinTasksFormJson(ref List<ToDo> startTaskList)
         {
-            startTaskList = new List<ToDo>();
+            Console.Clear();
 
-            if (!IsTasksClear())
-            {
-                Console.WriteLine("Пока задач нет!");
-                return;
-            }
-            List<ToDo> json = JsonSerializer.Deserialize<List<ToDo>>("tasks.json");
+            if (!IsJSONTasksClear(out string jsonText)) return;
+
+            List<ToDo> json = JsonSerializer.Deserialize<List<ToDo>>(jsonText);
 
             for (int i = 0; i < json.Count; i++)
             {
@@ -128,7 +120,7 @@ namespace HomeTaskLesson5_5
 
                 if (json[i].IsDone)
                 {
-                    Console.WriteLine($"{i + 1} \"+\" {json[i].Title}");
+                    Console.WriteLine($"{i + 1} [X] {json[i].Title}");
                 }
                 else
                 {
@@ -137,14 +129,42 @@ namespace HomeTaskLesson5_5
             }
         }
         /// <summary>
-        /// Проверка пуст ли файл задач
+        /// Проверка существование файла и наличия информации в нем
         /// </summary>
         /// <returns></returns>
-        static bool IsTasksClear()
+        static bool IsJSONTasksClear(out string jsonText)
         {
-            long fileSize = new FileInfo("tasks.json").Length;
-            if (fileSize > 8) return true;
-            return false;
+            if (File.Exists(@"E:\GeekBrains\tasks.json") == false) File.WriteAllText(@"E:\GeekBrains\tasks.json", "");
+
+            jsonText = File.ReadAllText(@"E:\GeekBrains\tasks.json");
+
+            if (jsonText.Length > 0) return true;
+            else return false;
+        }
+
+        /// <summary>
+        /// Отметить задачу, как выполненную
+        /// </summary>
+        /// <param name="taskList">Общий список задач</param>
+        static void TaskComplate(ref List<ToDo> taskList)
+        {
+            Console.Clear();
+            Console.WriteLine("Текущий список задач:");
+
+            PrinTasksFormJson(ref taskList);
+
+            while (true)
+            {
+                Console.WriteLine("Введите номер задачи, которая выполнена. Если хотите выйти, введите 0");
+                int userVal = UserVal()-1;
+
+                if (userVal == -1)  break;
+
+                if (userVal < 0 || userVal > taskList.Count) Console.WriteLine("Задачи с заданным номером не существует!");
+
+                taskList[userVal].IsDone = true;
+            }
+            AddTasksToJson(taskList);
         }
     }
 }

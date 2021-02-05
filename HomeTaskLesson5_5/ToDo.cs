@@ -6,8 +6,8 @@ namespace HomeTaskLesson5_5
 {
     class ToDo
     {
-        string title;
-        bool isDone;
+        private string title;
+        private bool isDone;
 
         public ToDo()
         {
